@@ -236,7 +236,7 @@ app.post("/login", (req, res) => {
 });
 
 // Route to get notes for a specific user by email
-app.get("/userList/:email", (req, res) => {
+app.get("/:email", (req, res) => {
   const { email } = req.params;
   const username = req.cookies.username;
 
@@ -252,6 +252,8 @@ app.get("/userList/:email", (req, res) => {
 
   res.json(user.notes); // Send user notes if authenticated
 });
+
+
 
 app.listen(PORT, () => {
   console.log("Your server is running at port 3300");
