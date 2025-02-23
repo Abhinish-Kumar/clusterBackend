@@ -1,7 +1,10 @@
+require("dotenv").config();
+
 const express = require("express");
 const app = express();
 const cors = require("cors");
 const cookieParser = require("cookie-parser");
+const PORT = process.env.PORT || 3300;
 
 app.use(cookieParser()); // Use cookie-parser middleware
 
@@ -275,6 +278,6 @@ app.get("/userList/:email", (req, res) => {
   res.json(user.notes); // Send user notes if authenticated
 });
 
-app.listen(3300, () => {
+app.listen(PORT, () => {
   console.log("Your server is running at port 3300");
 });
