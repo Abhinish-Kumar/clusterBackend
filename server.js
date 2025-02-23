@@ -10,7 +10,7 @@ app.use(cookieParser()); // Use cookie-parser middleware
 
 app.use(
   cors({
-    origin: "https://cluster-rlf5.onrender.com/", // Frontend origin
+    origin: "https://cluster-rlf5.onrender.com", // Frontend origin
     credentials: true, // Allow cookies to be sent
   })
 );
