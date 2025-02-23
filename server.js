@@ -19,7 +19,116 @@ app.use(
 app.use(express.json());
 
 let users = [
-  // Your users data...
+  {
+    username: "john doe",
+    password: "password123",
+    email: "johndoe@gmail.com",
+    profile: {
+      name: "John Doe",
+      email: "johndoe@gmail.com",
+      image: "https://randomuser.me/api/portraits/men/1.jpg",
+    },
+    notes: [{ 1: "This is a dummy note" }, { 2: "This is another dummy note" }],
+  },
+  {
+    username: "jane smith",
+    password: "password123",
+    email: "janesmith@gmail.com",
+    profile: {
+      name: "Jane Smith",
+      email: "janesmith@gmail.com",
+      image: "https://randomuser.me/api/portraits/women/2.jpg",
+    },
+    notes: [{ 1: "This is a dummy note" }, { 2: "This is another dummy note" }],
+  },
+  {
+    username: "michael brown",
+    password: "password123",
+    email: "michaelbrown@gmail.com",
+    profile: {
+      name: "Michael Brown",
+      email: "michaelbrown@gmail.com",
+      image: "https://randomuser.me/api/portraits/men/3.jpg",
+    },
+    notes: [{ 1: "This is a dummy note" }, { 2: "This is another dummy note" }],
+  },
+  {
+    username: "emily davis",
+    password: "password123",
+    email: "emilydavis@gmail.com",
+    profile: {
+      name: "Emily Davis",
+      email: "emilydavis@gmail.com",
+      image: "https://randomuser.me/api/portraits/women/4.jpg",
+    },
+    notes: [{ 1: "This is a dummy note" }, { 2: "This is another dummy note" }],
+  },
+  {
+    username: "robert johnson",
+    password: "password123",
+    email: "robertjohnson@gmail.com",
+    profile: {
+      name: "Robert Johnson",
+      email: "robertjohnson@gmail.com",
+      image: "https://randomuser.me/api/portraits/men/5.jpg",
+    },
+    notes: [{ 1: "This is a dummy note" }, { 2: "This is another dummy note" }],
+  },
+  {
+    username: "susan wilson",
+    password: "password123",
+    email: "susanwilson@gmail.com",
+    profile: {
+      name: "Susan Wilson",
+      email: "susanwilson@gmail.com",
+      image: "https://randomuser.me/api/portraits/women/6.jpg",
+    },
+    notes: [{ 1: "This is a dummy note" }, { 2: "This is another dummy note" }],
+  },
+  {
+    username: "william moore",
+    password: "password123",
+    email: "williammoore@gmail.com",
+    profile: {
+      name: "William Moore",
+      email: "williammoore@gmail.com",
+      image: "https://randomuser.me/api/portraits/men/7.jpg",
+    },
+    notes: [{ 1: "This is a dummy note" }, { 2: "This is another dummy note" }],
+  },
+  {
+    username: "olivia taylor",
+    password: "password123",
+    email: "oliviataylor@gmail.com",
+    profile: {
+      name: "Olivia Taylor",
+      email: "oliviataylor@gmail.com",
+      image: "https://randomuser.me/api/portraits/women/8.jpg",
+    },
+    notes: [{ 1: "This is a dummy note" }, { 2: "This is another dummy note" }],
+  },
+  {
+    username: "david martinez",
+    password: "password123",
+    email: "davidmartinez@gmail.com",
+    profile: {
+      name: "David Martinez",
+      email: "davidmartinez@gmail.com",
+      image: "https://randomuser.me/api/portraits/men/9.jpg",
+    },
+    notes: [{ 1: "This is a dummy note" }, { 2: "This is another dummy note" }],
+  },
+  {
+    username: "mary garcia",
+    password: "password123",
+    email: "marygarcia@gmail.com",
+    profile: {
+      name: "Mary Garcia",
+      email: "marygarcia@gmail.com",
+      image: "https://randomuser.me/api/portraits/women/10.jpg",
+    },
+    notes: [{ 1: "This is a dummy note" }, { 2: "This is another dummy note" }],
+  },
 ];
 
 app.get("/", (req, res) => {
