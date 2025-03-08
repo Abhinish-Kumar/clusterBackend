@@ -10,7 +10,7 @@ app.use(cookieParser()); // Use cookie-parser middleware
 
 app.use(
   cors({
-    origin: "https://cluster-rlf5.onrender.com", // Frontend origin
+    origin: "https://cluster-rlf5.onrender.com/", // Frontend origin
     credentials: true, // Allow cookies to be sent
   })
 );
@@ -231,29 +231,37 @@ app.post("/:email", (req, res) => {
   res.json(user.notes);
 });
 
-// DELETE to remove a note
-app.delete("/:email/:noteIndex", (req, res) => {
-  const { email, noteIndex } = req.params;
-  const userCookieData = req.cookies.username
-    ? JSON.parse(req.cookies.username)
-    : null;
-  if (!userCookieData || !userCookieData.username) {
+// Backend route to delete a note
+app.delete("/:email/:noteId", (req, res) => {
+  const { email, noteId } = req.params;
+  const userCookieData = JSON.parse(req.cookies.username);
+
+  if (!userCookieData || (!userCookieData.username && !userCookieData.email)) {
     return res
       .status(401)
       .json({ message: "Unauthorized: No username cookie" });
   }
 
-  const user = users.find((user) => user.email === email);
+  // Find the user with the matching email
+  const user = users.find(
+    (user) => user.email === userCookieData.email && user.email === email
+  );
+
   if (!user) {
     return res.status(404).json({ message: "User not found" });
   }
 
-  if (user.notes[noteIndex]) {
-    user.notes.splice(noteIndex, 1); // Remove the note from the array
-    res.json(user.notes); // Return the updated notes list
-  } else {
-    res.status(404).json({ message: "Note not found" });
+  // Ensure the noteId is a valid index
+  const noteIndex = parseInt(noteId, 10);
+  if (isNaN(noteIndex) || noteIndex < 0 || noteIndex >= user.notes.length) {
+    return res.status(400).json({ message: "Invalid note ID" });
   }
+
+  // Remove the note from the user's notes array
+  user.notes.splice(noteIndex, 1);
+
+  // Respond with the updated notes
+  res.json(user.notes);
 });
 
 app.listen(PORT, () => {
