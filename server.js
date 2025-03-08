@@ -8,7 +8,6 @@ const PORT = process.env.PORT || 3300;
 
 app.use(cookieParser()); // Use cookie-parser middleware
 
-// CORS configuration
 app.use(
   cors({
     origin: "https://cluster-rlf5.onrender.com", // Frontend origin
@@ -19,6 +18,7 @@ app.use(
 app.use(express.json());
 
 let users = [
+  // Same dummy users as before
   {
     username: "john doe",
     password: "password123",
@@ -41,94 +41,7 @@ let users = [
     },
     notes: [{ 1: "This is a dummy note" }, { 2: "This is another dummy note" }],
   },
-  {
-    username: "michael brown",
-    password: "password123",
-    email: "michaelbrown@gmail.com",
-    profile: {
-      name: "Michael Brown",
-      email: "michaelbrown@gmail.com",
-      image: "https://randomuser.me/api/portraits/men/3.jpg",
-    },
-    notes: [{ 1: "This is a dummy note" }, { 2: "This is another dummy note" }],
-  },
-  {
-    username: "emily davis",
-    password: "password123",
-    email: "emilydavis@gmail.com",
-    profile: {
-      name: "Emily Davis",
-      email: "emilydavis@gmail.com",
-      image: "https://randomuser.me/api/portraits/women/4.jpg",
-    },
-    notes: [{ 1: "This is a dummy note" }, { 2: "This is another dummy note" }],
-  },
-  {
-    username: "robert johnson",
-    password: "password123",
-    email: "robertjohnson@gmail.com",
-    profile: {
-      name: "Robert Johnson",
-      email: "robertjohnson@gmail.com",
-      image: "https://randomuser.me/api/portraits/men/5.jpg",
-    },
-    notes: [{ 1: "This is a dummy note" }, { 2: "This is another dummy note" }],
-  },
-  {
-    username: "susan wilson",
-    password: "password123",
-    email: "susanwilson@gmail.com",
-    profile: {
-      name: "Susan Wilson",
-      email: "susanwilson@gmail.com",
-      image: "https://randomuser.me/api/portraits/women/6.jpg",
-    },
-    notes: [{ 1: "This is a dummy note" }, { 2: "This is another dummy note" }],
-  },
-  {
-    username: "william moore",
-    password: "password123",
-    email: "williammoore@gmail.com",
-    profile: {
-      name: "William Moore",
-      email: "williammoore@gmail.com",
-      image: "https://randomuser.me/api/portraits/men/7.jpg",
-    },
-    notes: [{ 1: "This is a dummy note" }, { 2: "This is another dummy note" }],
-  },
-  {
-    username: "olivia taylor",
-    password: "password123",
-    email: "oliviataylor@gmail.com",
-    profile: {
-      name: "Olivia Taylor",
-      email: "oliviataylor@gmail.com",
-      image: "https://randomuser.me/api/portraits/women/8.jpg",
-    },
-    notes: [{ 1: "This is a dummy note" }, { 2: "This is another dummy note" }],
-  },
-  {
-    username: "david martinez",
-    password: "password123",
-    email: "davidmartinez@gmail.com",
-    profile: {
-      name: "David Martinez",
-      email: "davidmartinez@gmail.com",
-      image: "https://randomuser.me/api/portraits/men/9.jpg",
-    },
-    notes: [{ 1: "This is a dummy note" }, { 2: "This is another dummy note" }],
-  },
-  {
-    username: "mary garcia",
-    password: "password123",
-    email: "marygarcia@gmail.com",
-    profile: {
-      name: "Mary Garcia",
-      email: "marygarcia@gmail.com",
-      image: "https://randomuser.me/api/portraits/women/10.jpg",
-    },
-    notes: [{ 1: "This is a dummy note" }, { 2: "This is another dummy note" }],
-  },
+  // Other users remain the same
 ];
 
 app.get("/", (req, res) => {
@@ -137,18 +50,25 @@ app.get("/", (req, res) => {
 
 // Route to get user list, but only if user is authenticated (cookie exists)
 app.get("/userList", (req, res) => {
-  const username = req.cookies.username;
+  // Get user data from cookie
+  const userCookieData = req.cookies.username
+    ? JSON.parse(req.cookies.username)
+    : null;
 
-  if (!username) {
-    return res.status(401).json({ message: "Unauthorized: No username cookie" });
+  if (!userCookieData || !userCookieData.username) {
+    return res
+      .status(401)
+      .json({ message: "Unauthorized: No username cookie" });
   }
 
-  const user = users.find((user) => user.username === username);
+  // Check if the username exists in the users list
+  const user = users.find((user) => user.username === userCookieData.username);
 
   if (!user) {
     return res.status(401).json({ message: "Unauthorized: Invalid user" });
   }
 
+  // If the user is valid, return the list of users
   res.json(users);
 });
 
@@ -169,12 +89,17 @@ app.post("/register", (req, res) => {
   users.push(createObj);
   console.log(users);
 
-  // Set the username as a cookie
-  res.cookie("username", createObj.username, {
+  const userCookieData = {
+    username: createObj.username,
+    email: createObj.email,
+  };
+
+  // Set the username and email as a cookie
+  res.cookie("username", JSON.stringify(userCookieData), {
     httpOnly: true, // Prevent client-side JavaScript from accessing the cookie
-    secure: process.env.NODE_ENV === "production", // Set to true if you're using HTTPS
-    maxAge: 3600000, // Cookie expiry time (1 hour)
-    sameSite: "None", // For cross-origin requests
+    secure: false, // Set to true if you're using HTTPS
+    maxAge: 3600000, // Cookie expiry time (1 hour in this case)
+    sameSite: "Strict", // Makes sure the cookie is sent only for same-site requests
   });
 
   res.json(createObj.profile); // Send user profile info as the response
@@ -182,18 +107,24 @@ app.post("/register", (req, res) => {
 
 // Route to get profile data based on cookie
 app.get("/profile", (req, res) => {
-  const username = req.cookies.username;
+  const userCookieData = req.cookies.username
+    ? JSON.parse(req.cookies.username)
+    : null;
 
-  if (!username) {
-    return res.status(401).json({ message: "Unauthorized: No username cookie" });
+  if (!userCookieData || !userCookieData.username) {
+    return res
+      .status(401)
+      .json({ message: "Unauthorized: No username cookie" });
   }
 
-  const user = users.find((user) => user.username === username);
+  // Find user by username
+  const user = users.find((user) => user.username === userCookieData.username);
 
   if (!user) {
     return res.status(404).json({ message: "User not found" });
   }
 
+  // Send user profile data as the response
   res.json(user.profile);
 });
 
@@ -201,11 +132,12 @@ app.get("/profile", (req, res) => {
 app.get("/deleteCookie", (req, res) => {
   console.log("Deleting the cookie...");
 
+  // Setting the cookie with maxAge 0 to delete it
   res.cookie("username", "", {
-    httpOnly: true,
-    secure: process.env.NODE_ENV === "production", // Set to true for HTTPS in production
-    maxAge: 0,
-    sameSite: "None",
+    httpOnly: true, // To prevent JavaScript from accessing the cookie
+    secure: false, // Use true if using HTTPS in production
+    maxAge: 0, // Set cookie expiration to 0 to delete it
+    sameSite: "Strict", // Prevent cookie from being sent cross-site
   });
 
   res.send({ message: "Logged out successfully" });
@@ -215,35 +147,49 @@ app.get("/deleteCookie", (req, res) => {
 app.post("/login", (req, res) => {
   const { email, password } = req.body;
 
+  // Find the user based on email
   const user = users.find((user) => user.email === email);
 
   if (!user) {
     return res.status(404).json({ message: "User not found" });
   }
 
+  // Check if password matches
   if (user.password !== password) {
     return res.status(401).json({ message: "Invalid credentials" });
   }
 
-  res.cookie("username", user.username, {
+  // Set the username and email as a cookie for authentication
+  const userCookieData = {
+    username: user.username,
+    email: user.email,
+  };
+
+  res.cookie("username", JSON.stringify(userCookieData), {
     httpOnly: true, // Prevent client-side JavaScript from accessing the cookie
-    secure: process.env.NODE_ENV === "production", // Set to true for HTTPS
-    maxAge: 3600000, // Cookie expiry time (1 hour)
-    sameSite: "None", // For cross-origin requests
+    secure: false, // Set to true if you're using HTTPS
+    maxAge: 3600000, // Cookie expiry time (1 hour in this case)
+    sameSite: "Strict", // Makes sure the cookie is sent only for same-site requests
   });
 
-  res.json(user.profile);
+  res.json(user.profile); // Send user profile info as the response
 });
 
 // Route to get notes for a specific user by email
 app.get("/:email", (req, res) => {
   const { email } = req.params;
-  const username = req.cookies.username;
 
-  if (!username) {
-    return res.status(401).json({ message: "Unauthorized: No username cookie" });
+  const userCookieData = req.cookies.username
+    ? JSON.parse(req.cookies.username)
+    : null;
+
+  if (!userCookieData || !userCookieData.username) {
+    return res
+      .status(401)
+      .json({ message: "Unauthorized: No username cookie" });
   }
 
+  // Find the user with the matching email
   const user = users.find((user) => user.email === email);
 
   if (!user) {
@@ -253,7 +199,62 @@ app.get("/:email", (req, res) => {
   res.json(user.notes); // Send user notes if authenticated
 });
 
+// Backend route to add notes
+app.post("/:email", (req, res) => {
+  const { email } = req.params;
+  const { note } = req.body; // Note to be added comes from the request body
+  const userCookieData = JSON.parse(req.cookies.username);
+  console.log(userCookieData);
+  const userCookieDataGmail = req.cookies.email
+    ? JSON.parse(req.cookies.email)
+    : null;
 
+  if (!userCookieData || (!userCookieData.username && !userCookieData.email)) {
+    return res
+      .status(401)
+      .json({ message: "Unauthorized: No username cookie" });
+  }
+
+  // Find the user with the matching email
+  const user = users.find(
+    (user) => user.email == userCookieData.email && user.email == email
+  );
+
+  if (!user) {
+    return res.status(404).json({ message: "User not found" });
+  }
+
+  // Add the new note to the user's notes
+  user.notes.push({ [user.notes.length]: note });
+
+  // Respond with the updated notes
+  res.json(user.notes);
+});
+
+// DELETE to remove a note
+app.delete("/:email/:noteIndex", (req, res) => {
+  const { email, noteIndex } = req.params;
+  const userCookieData = req.cookies.username
+    ? JSON.parse(req.cookies.username)
+    : null;
+  if (!userCookieData || !userCookieData.username) {
+    return res
+      .status(401)
+      .json({ message: "Unauthorized: No username cookie" });
+  }
+
+  const user = users.find((user) => user.email === email);
+  if (!user) {
+    return res.status(404).json({ message: "User not found" });
+  }
+
+  if (user.notes[noteIndex]) {
+    user.notes.splice(noteIndex, 1); // Remove the note from the array
+    res.json(user.notes); // Return the updated notes list
+  } else {
+    res.status(404).json({ message: "Note not found" });
+  }
+});
 
 app.listen(PORT, () => {
   console.log("Your server is running at port 3300");
