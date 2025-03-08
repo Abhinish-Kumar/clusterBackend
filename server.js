@@ -107,17 +107,13 @@ app.post("/register", (req, res) => {
 
 // Route to get profile data based on cookie
 app.get("/profile", (req, res) => {
-  const userCookieData = req.cookies.username
-    ? JSON.parse(req.cookies.username)
-    : null;
+  const userCookieData = req.cookies.username ? JSON.parse(req.cookies.username) : null;
 
   if (!userCookieData || !userCookieData.username) {
-    return res
-      .status(401)
-      .json({ message: "Unauthorized: No username cookie" });
+    return res.status(401).json({ message: "Unauthorized: No username cookie" });
   }
 
-  // Find user by username
+  // Find user by username (instead of email, since the cookie stores username)
   const user = users.find((user) => user.username === userCookieData.username);
 
   if (!user) {
